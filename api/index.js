@@ -8,6 +8,7 @@ const REGEX = require("./regex.js");
 const app = express();
 app.use(cors());
 
+/* Scrape Earthquake News */
 function Match(text, regex, index) {
   const matches = text.match(regex);
 
@@ -71,6 +72,42 @@ app.get("/scrape-earthquake", async (req, res) => {
 
   res.json(news);
 });
+/* Scrape Earthquake News*/
+
+/* Scrape Strong Wind News */
+app.get("/scrape-strongwind", async (req, res) => {
+  let news = [];
+
+  try {
+    const response = await axios.get(
+      "https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m&oquery=%EC%9E%AC%EB%82%9C%EB%AC%B8%EC%9E%90&tqi=ig6dWdprfShssL4f9dKssssstBh-115609&query=%EC%9E%AC%EB%82%9C%EB%AC%B8%EC%9E%90+%EA%B0%95%ED%92%8D"
+    );
+    const $ = cheerio.load(response.data);
+
+    const $newsList = $(".disaster_list > li");
+
+    $newsList.each((index, child) => {
+      const text = $(child).find(".disaster_text").text();
+      const area = $(child).find(".info_box > .area").text();
+      const date = $(child).find(".info_box > .date").text();
+      const howtoactlink = $(child).find(".disaster_info > a").attr("href");
+
+      news.push({
+        text,
+        area,
+        date,
+        howtoactlink,
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("error");
+  }
+
+  res.json(news);
+});
+/* Scrape Strong Wind News*/
+
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
