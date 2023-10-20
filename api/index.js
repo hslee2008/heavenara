@@ -1,10 +1,12 @@
 const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
+const cors = require("cors");
 
 const REGEX = require("./regex.js");
 
 const app = express();
+app.use(cors())
 
 function Match(text, regex, index) {
   const matches = text.match(regex);
