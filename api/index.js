@@ -6,16 +6,23 @@ const cors = require("cors");
 const REGEX = require("./regex.js");
 
 const app = express();
-app.use(cors())
+app.use(cors());
 
 function Match(text, regex, index) {
   const matches = text.match(regex);
-  
+
   if (matches) {
     return matches[index];
   }
 
   return null;
+}
+
+function locTOnumb(loc) {
+  const locArr = loc.split(" ");
+  const locNum = locArr[0];
+
+  return locNum;
 }
 
 app.get("/scrape-earthquake", async (req, res) => {
@@ -39,8 +46,8 @@ app.get("/scrape-earthquake", async (req, res) => {
       const date = Match(description, REGEX.date, 0);
       const location = Match(description, REGEX.location, 0);
       const magnitude = Match(description, REGEX.magnitude, 0);
-      const latitude = Match(description, REGEX.latitude, 1);
-      const longitude = Match(description, REGEX.longitude, 1);
+      const latitude = locTOnumb(Match(description, REGEX.latitude, 1));
+      const longitude = locTOnumb(Match(description, REGEX.longitude, 1));
 
       news.push({
         source,

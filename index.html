@@ -19,7 +19,7 @@
     <div id="map"></div>
 
     <script>
-      let lat, lon;
+      let lat, lon, map;
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(setPos);
@@ -37,17 +37,28 @@
           level: 5,
         };
 
-        var map = new kakao.maps.Map(mapContainer, mapOption);
+        map = new kakao.maps.Map(mapContainer, mapOption);
       }, 1000);
-    </script>
 
-    <script>
-      fetch("https://heavenara.onrender.com/")
+      fetch("https://heavenara.onrender.com/scrape-earthquake")
         .then((res) => {
           return res.json();
         })
         .then((res) => {
           console.log(res);
+
+          for (let i = 0; i < res.length; i++) {
+            let markerPosition = new kakao.maps.LatLng(
+              res[i].info.latitude?.slice(0, -2),
+              res[i].info.longtitude?.slice(0, -2)
+            );
+
+            let marker = new kakao.maps.Marker({
+              position: markerPosition,
+            });
+
+            marker.setMap(map);
+          }
         });
     </script>
   </body>
