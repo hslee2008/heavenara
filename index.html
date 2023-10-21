@@ -44,7 +44,7 @@
         align-items: center;
       }
       .howtoact {
-        background: #238CFA !important;
+        background: #238cfa !important;
       }
     </style>
   </head>
@@ -99,9 +99,7 @@
       );
 
       fetch("https://heavenara.onrender.com/scrape-earthquake")
-        .then((res) => {
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((res) => {
           console.log(res);
 
@@ -126,6 +124,11 @@
           }
         });
       /* EarthQuake */
+
+      /* Heat Wave */
+      fetch("https://heavenara.onrender.com/scrape-heatwave").then(res => res.json()).then(() => {
+        console.log(res)
+      })
     </script>
   </body>
 </html>

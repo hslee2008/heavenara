@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async-wait-until": "^2.0.12",
     "axios": "^1.5.1",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",

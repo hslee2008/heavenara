@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
+const { waitUntil } = require("async-wait-until");
 
 const REGEX = require("./regex.js");
 
@@ -122,7 +123,91 @@ app.get("/scrape-strongwind", async (req, res) => {
 
   res.json(news);
 });
-/* Scrape Strong Wind News*/
+/* Scrape Strong Wind News */
+
+/* Scrape Heat Wave */
+async function query(data) {
+  const response = await fetch(
+    "https://api-inference.huggingface.co/models/KoichiYasuoka/roberta-large-korean-upos",
+    {
+      headers: {
+        Authorization: "Bearer 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",
+      },
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+  const result = await response.json();
+  return result;
+}
+
+app.get("/scrape-heatwave", async (req, res) => {
+  let news = [];
+  let length = 0
+
+  try {
+    const response = await axios.get(
+      "https://search.naver.com/search.naver?where=news&query=%EC%86%8D%EB%B3%B4%20%ED%8F%AD%EC%97%BC%EC%A3%BC%EC%9D%98%EB%B3%B4&sm=tab_opt&sort=1&photo=0&field=0&pd=0&ds=&de=&docid=&related=0&mynews=1&office_type=2&office_section_code=15&news_office_checked=2785&nso=so%3Add%2Cp%3Aall&is_sug_officeid=0&office_category=0&service_area=0"
+    );
+    const $ = cheerio.load(response.data);
+
+    const $newsList = $(".list_news > li");
+
+    length = $newsList.length
+
+    $newsList.each(async (index, child) => {
+      const date = $(child).find(".info_group > .info").text().slice(5, -1);
+      const title = $(child).find(".news_contents > .news_tit").attr("title");
+      const link = $(child).find(".dsc_thumb").attr("href");
+
+      let 도 = "",
+        시 = "",
+        군 = "",
+        시도 = "";
+
+      const res = await query(title);
+      const place = res.filter((item) => item.entity_group === "NOUN");
+      const words = [];
+
+      for (let i = 0; i < place.length; i++) {
+        words.push(place[i]["word"]);
+      }
+
+      words.forEach((text) => {
+        if (text.endsWith("도")) 도 = text;
+        if (text.endsWith("군")) 군 = text;
+        if (text.endsWith("시") && !text.includes("도")) 시 = text;
+        if (text.endsWith("시") && text.includes("도")) 시도 = text;
+      });
+
+      let si, doo;
+      if (시도) {
+        [si, doo] = 시도.split(" ");
+        시 = si;
+        도 = doo;
+      }
+
+      news.push({
+        date,
+        title,
+        link,
+        area: {
+          도,
+          시,
+          군,
+          시도,
+        },
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("error");
+  }
+
+  await waitUntil(() => news.length === length);
+
+  res.json(news);
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
