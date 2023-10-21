@@ -99,6 +99,16 @@ app.get("/scrape-strongwind", async (req, res) => {
         howtoactlink,
       });
     });
+
+    news = news.filter((item, index) => {
+      const _item = JSON.stringify(item);
+      return (
+        index ===
+        news.findIndex((obj) => {
+          return JSON.stringify(obj) === _item;
+        })
+      );
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("error");
@@ -107,7 +117,6 @@ app.get("/scrape-strongwind", async (req, res) => {
   res.json(news);
 });
 /* Scrape Strong Wind News*/
-
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
