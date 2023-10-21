@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>지도 생성하기</title>
-    <script src="script.js"></script>
+    <script src="/library/kakao.js"></script>
     <script src="html.js"></script>
     <style>
       body {
@@ -18,9 +18,6 @@
       .overlay {
         position: relative;
         bottom: 110px;
-        border-radius: 6px;
-        border: 1px solid #ea6968;
-        border-bottom: 2px solid #ea6968;
         float: left;
         display: flex;
       }
@@ -46,6 +43,9 @@
         justify-content: center;
         align-items: center;
       }
+      .howtoact {
+        background: #238CFA !important;
+      }
     </style>
   </head>
   <body>
@@ -54,21 +54,37 @@
     <script>
       let lat, lon, map;
 
-      function setPos(position) {
+      function init(position) {
         lat = position.coords.latitude;
         lon = position.coords.longitude;
 
         var mapContainer = document.getElementById("map");
         var mapOption = {
           center: new kakao.maps.LatLng(lat, lon),
-          level: screen.width < 1000 ? 13 : 14,
+          level: screen.width < 1000 ? 12 : 13,
         };
 
         map = new kakao.maps.Map(mapContainer, mapOption);
+
+        map.addControl(
+          new kakao.maps.MapTypeControl(),
+          kakao.maps.ControlPosition.TOPRIGHT
+        );
+        map.addControl(
+          new kakao.maps.ZoomControl(),
+          kakao.maps.ControlPosition.RIGHT
+        );
+
+        /* Where you are */
+        let marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(lat, lon),
+        });
+
+        marker.setMap(map);
       }
 
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(setPos);
+        navigator.geolocation.getCurrentPosition(init);
       }
 
       /* EarthQuake */
@@ -97,7 +113,6 @@
             let marker = new kakao.maps.Marker({
               position,
               image: markerImage,
-              clickable: true,
             });
 
             var customOverlay = new kakao.maps.CustomOverlay({
@@ -111,43 +126,6 @@
           }
         });
       /* EarthQuake */
-
-      /* Strong Winds */
-      imageSrc = "img/earthquake.png";
-      markerImage = new kakao.maps.MarkerImage(
-        imageSrc,
-        imageSize,
-        imageOption
-      );
-
-      fetch("https://heavenara.onrender.com/scrape-strongwind")
-        .then((res) => {
-          return res.json();
-        })
-        .then((res) => {
-          console.log(res);
-
-          for (let i = 0; i < res.length; i++) {
-            const longitude = parseFloat(res[i].info.longitude);
-            const latitude = parseFloat(res[i].info.latitude);
-            const position = new kakao.maps.LatLng(latitude, longitude);
-
-            let marker = new kakao.maps.Marker({
-              position,
-              image: markerImage,
-              clickable: true,
-            });
-
-            var customOverlay = new kakao.maps.CustomOverlay({
-              position,
-              content: returnEQ(res[i]),
-            });
-
-            customOverlay.setMap(map);
-
-            marker.setMap(map);
-          }
-        });
     </script>
   </body>
 </html>
