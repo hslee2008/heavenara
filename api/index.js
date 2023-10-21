@@ -87,15 +87,21 @@ app.get("/scrape-strongwind", async (req, res) => {
     const $newsList = $(".disaster_list > li");
 
     $newsList.each((index, child) => {
+      const galeInfo = $(child).find(".info_box > .date").text();
+
       const text = $(child).find(".disaster_text").text();
-      const area = $(child).find(".info_box > .area").text();
-      const date = $(child).find(".info_box > .date").text();
+      const affectedArea = $(child).find(".info_box > .area").text();
+      const date = galeInfo.slice(0, 10);
+      const time = galeInfo.slice(12, 17);
+      const area = galeInfo.slice(18, 22);
       const howtoactlink = $(child).find(".disaster_info > a").attr("href");
 
       news.push({
         text,
-        area,
+        affectedArea,
         date,
+        time,
+        area,
         howtoactlink,
       });
     });
