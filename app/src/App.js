@@ -1,9 +1,13 @@
 import { useKakaoLoader, Map, MapMarker } from "react-kakao-maps-sdk";
 import { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
+
+import { parseEQTitle } from "./utils/parse";
+
 import "./css/App.css";
 
 function App() {
+  const [appLoading, setAppLoading] = useState(true);
   const [loading, error] = useKakaoLoader({
     appkey: "6072e8a0344039acacc746c3c35906fb",
   });
@@ -46,11 +50,13 @@ function App() {
             });
             return filteredArr;
           });
+
+          if (i === res.length - 1) setAppLoading(false)
         }
       });
   }, []);
 
-  if (loading)
+  if (appLoading || loading)
     return (
       <div className="spinner-wrapper">
         <ReactLoading type="spin" color="skyblue" height={300} width={300} />
@@ -85,9 +91,10 @@ function App() {
           >
             <div className="overlay-wrapper">
               <div onClick={() => window.open(marker.link)} className="overlay">
-                <p className="title">{marker.title?.slice(7)}</p>
+                <p className="title">{parseEQTitle(marker.title?.slice(7))}</p>
                 <p className="time">{marker.time}</p>
               </div>
+              
               <div className="button-wrapper">
                 <button
                   onClick={() =>

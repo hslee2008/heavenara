@@ -15,13 +15,25 @@
   text-align: center;
 }
 
+.button-wrapper > button {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #eee;
+}
+
 .button-wrapper {
   margin-bottom: 10px;
 }
 
 .overlay {
   padding: 5px;
-  line-height: 1px;
+  line-height: 3px;
   cursor: pointer;
   text-align: center;
 }
