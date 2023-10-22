@@ -56,7 +56,7 @@ function App() {
         <ReactLoading type="spin" color="skyblue" height={300} width={300} />
       </div>
     );
-  if (error)
+  if (process.env.NODE_ENV === "production" && error)
     return (
       <div className="spinner-wrapper">
         <h1>unknown error</h1>
@@ -83,9 +83,22 @@ function App() {
             }}
             onClick={() => window.open(marker.link)}
           >
-            <div onClick={() => window.open(marker.link)} className="overlay">
-              <p className="title">{marker.title?.slice(7)}</p>
-              <p className="time">{marker.time}</p>
+            <div className="overlay-wrapper">
+              <div onClick={() => window.open(marker.link)} className="overlay">
+                <p className="title">{marker.title?.slice(7)}</p>
+                <p className="time">{marker.time}</p>
+              </div>
+              <div className="button-wrapper">
+                <button
+                  onClick={() =>
+                    window.open(
+                      "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
+                    )
+                  }
+                >
+                  행동요령
+                </button>
+              </div>
             </div>
           </MapMarker>
         ))}
