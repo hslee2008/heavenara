@@ -48,23 +48,24 @@ app.get("/scrape-earthquake", async (req, res) => {
       const date = Match(description, REGEX.date, 0);
       const location = Match(description, REGEX.location, 0);
       const magnitude = Match(description, REGEX.magnitude, 0);
-      const latitude = locTOnumb(Match(description, REGEX.latitude, 1));
-      const longitude = locTOnumb(Match(description, REGEX.longitude, 1));
+      const latitude = locTOnumb(Match(description, REGEX.latitude, 1) ?? "");
+      const longitude = locTOnumb(Match(description, REGEX.longitude, 1) ?? "");
 
-      news.push({
-        source,
-        time,
-        link,
-        title,
-        description,
-        info: {
-          date,
-          location,
-          magnitude,
-          latitude,
-          longitude,
-        },
-      });
+      if (date !== null || location !== null || magnitude !== null)
+        news.push({
+          source,
+          time,
+          link,
+          title,
+          description,
+          info: {
+            date,
+            location,
+            magnitude,
+            latitude,
+            longitude,
+          },
+        });
     });
   } catch (error) {
     console.error(error);
@@ -143,7 +144,7 @@ async function query(data) {
 
 app.get("/scrape-heatwave", async (req, res) => {
   let news = [];
-  let length = 0
+  let length = 0;
 
   try {
     const response = await axios.get(
@@ -153,7 +154,7 @@ app.get("/scrape-heatwave", async (req, res) => {
 
     const $newsList = $(".list_news > li");
 
-    length = $newsList.length
+    length = $newsList.length;
 
     $newsList.each(async (index, child) => {
       const date = $(child).find(".info_group > .info").text().slice(5, -1);
@@ -208,6 +209,7 @@ app.get("/scrape-heatwave", async (req, res) => {
 
   res.json(news);
 });
+/* Scrape Heat Wave */
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
