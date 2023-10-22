@@ -56,6 +56,12 @@ function App() {
         <ReactLoading type="spin" color="skyblue" height={300} width={300} />
       </div>
     );
+  if (error)
+    return (
+      <div className="spinner-wrapper">
+        <h1>unknown error</h1>
+      </div>
+    );
 
   return (
     <div className="App">
