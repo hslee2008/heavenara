@@ -51,9 +51,13 @@ function App() {
             return filteredArr;
           });
 
-          if (i === res.length - 1) setAppLoading(false)
+          if (i === res.length - 1) setAppLoading(false);
         }
       });
+
+    fetch("https://heavenara.onrender.com/scrape-dangerzone")
+      .then((res) => res.json())
+      .then((res) => {});
   }, []);
 
   if (appLoading || loading)
