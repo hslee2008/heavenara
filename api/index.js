@@ -226,7 +226,7 @@ app.get("/scrape-dangerzone", async (req, res) => {
     await page.goto(
       "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/fcl/riskUserList.html"
     );
-    await page.waitForTimeout(500);
+    await new Promise((r) => setTimeout(r, 500));
     const htmlContent = await page.content();
     await browser.close();
 
