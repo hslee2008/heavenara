@@ -51,7 +51,7 @@ app.get("/scrape-earthquake", async (req, res) => {
       const latitude = locTOnumb(Match(description, REGEX.latitude, 1) ?? "");
       const longitude = locTOnumb(Match(description, REGEX.longitude, 1) ?? "");
 
-      if (date !== null || location !== null || magnitude !== null)
+      if ((date !== null || location !== null || magnitude !== null) && !title.includes("중국"))
         news.push({
           source,
           time,
