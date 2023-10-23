@@ -24,7 +24,7 @@ function App() {
     navigator.geolocation.getCurrentPosition(init);
 
     // scrape earthquake
-    fetch("https://heavenara.onrender.com/scrape-earthquake")
+    fetch("https://heavenara.cyclic.app/scrape-earthquake")
       .then((res) => res.json())
       .then((res) => {
         for (let i = 0; i < res.length; i++) {
@@ -54,10 +54,6 @@ function App() {
           if (i === res.length - 1) setAppLoading(false);
         }
       });
-
-    fetch("https://heavenara.onrender.com/scrape-dangerzone")
-      .then((res) => res.json())
-      .then((res) => {});
   }, []);
 
   if (appLoading || loading)
