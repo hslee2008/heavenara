@@ -94,7 +94,7 @@ function App() {
                 <p className="title">{parseEQTitle(marker.title?.slice(7))}</p>
                 <p className="time">{marker.time}</p>
               </div>
-              
+
               <div className="button-wrapper">
                 <button
                   onClick={() =>

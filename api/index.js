@@ -32,7 +32,7 @@ app.get("/scrape-earthquake", async (req, res) => {
 
   try {
     const response = await axios.get(
-      "https://search.naver.com/search.naver?where=news&query=%EC%86%8D%EB%B3%B4%20%EC%A7%80%EC%A7%84&sm=tab_opt&sort=1&photo=0&field=0&pd=4&ds=2023.10.19.20.42&de=2023.10.20.20.42&docid=&related=0&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so%3Add%2Cp%3A1d&is_sug_officeid=0&office_category=0&service_area=0"
+      "https://search.naver.com/search.naver?where=news&query=%EC%86%8D%EB%B3%B4%20%EC%A7%80%EC%A7%84&sm=tab_opt&sort=1&photo=0&field=0&pd=1&ds=&de=&docid=&related=0&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so%3Add%2Cp%3A1w&is_sug_officeid=0&office_category=0&service_area=0"
     );
     const $ = cheerio.load(response.data);
 
@@ -51,7 +51,7 @@ app.get("/scrape-earthquake", async (req, res) => {
       const latitude = locTOnumb(Match(description, REGEX.latitude, 1) ?? "");
       const longitude = locTOnumb(Match(description, REGEX.longitude, 1) ?? "");
 
-      if (date !== null || location !== null || magnitude !== null)
+      if ((date !== null || location !== null || magnitude !== null) && !title.includes("중국"))
         news.push({
           source,
           time,
