@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node node_modules/puppeteer/install.mjs && npm install -g puppeteer",
+    "build": "node node_modules/puppeteer/install.mjs && npm install puppeteer --unsafe-perm=true --allow-root",
     "start": "node index.js",
     "watch": "nodemon index.js"
   },
