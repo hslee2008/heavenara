@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
+const puppeteer = require("puppeteer");
 const { waitUntil } = require("async-wait-until");
 
 const REGEX = require("./regex.js");
@@ -51,7 +52,10 @@ app.get("/scrape-earthquake", async (req, res) => {
       const latitude = locTOnumb(Match(description, REGEX.latitude, 1) ?? "");
       const longitude = locTOnumb(Match(description, REGEX.longitude, 1) ?? "");
 
-      if ((date !== null || location !== null || magnitude !== null) && !title.includes("중국"))
+      if (
+        (date !== null || location !== null || magnitude !== null) &&
+        !title.includes("중국")
+      )
         news.push({
           source,
           time,
@@ -210,6 +214,58 @@ app.get("/scrape-heatwave", async (req, res) => {
   res.json(news);
 });
 /* Scrape Heat Wave */
+
+/* Scrape Danger Zone */
+app.get("/scrape-dangerzone", async (req, res) => {
+  let news = [];
+
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.goto(
+      "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/fcl/riskUserList.html"
+    );
+    await page.waitForTimeout(500);
+    const htmlContent = await page.content();
+    await browser.close();
+
+    const $ = cheerio.load(htmlContent);
+    const $newsList = $("#apiTr > tr");
+
+    $newsList.each((index, child) => {
+      if (index % 2 === 1) return;
+
+      const districtAreaName = $(child)
+        .find(`#apiTr_${index / 2}_dstrAreaNm`)
+        .text();
+      const fullAreaName = $(child)
+        .find(`#apiTr_${index / 2}_fullAreaNm`)
+        .text()
+        .slice(0, -1);
+      [type, date] = $(child)
+        .find(`#apiTr_${index / 2}_typeNm`)
+        .text()
+        .split(" ( ");
+      date = date?.replace(" ) ", "");
+
+      const dateObject = new Date(date);
+
+      if (dateObject > new Date())
+        news.push({
+          districtAreaName,
+          fullAreaName,
+          type,
+          date,
+        });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("error");
+  }
+
+  res.json(news);
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

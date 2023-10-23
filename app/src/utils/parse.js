@@ -6,7 +6,9 @@ function parseEQTitle(title) {
     if (
       !titleList[i].includes("쪽") &&
       !titleList[i].includes("역서") &&
-      !titleList[i].includes("발생")
+      !titleList[i].includes("발생") &&
+      !titleList[i].includes("규모") &&
+      !titleList[i].includes("km")
     ) {
       toReturn.push(titleList[i]);
     }
