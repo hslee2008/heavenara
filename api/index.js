@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
-const puppeteer = require("puppeteer");
+const playwright = require("playwright");
 const { waitUntil } = require("async-wait-until");
 
 const REGEX = require("./regex.js");
@@ -220,17 +220,17 @@ app.get("/scrape-dangerzone", async (req, res) => {
   let news = [];
 
   try {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-
+    const browser = await playwright["chromium"].launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await page.goto(
       "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/fcl/riskUserList.html"
     );
-    await new Promise((r) => setTimeout(r, 500));
-    const htmlContent = await page.content();
+    await page.wait_for_timeout(1000);
+    const html = await page.content();
     await browser.close();
 
-    const $ = cheerio.load(htmlContent);
+    const $ = cheerio.load(html);
     const $newsList = $("#apiTr > tr");
 
     $newsList.each((index, child) => {
