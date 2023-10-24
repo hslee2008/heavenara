@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
-const http = require("http");
+const phantom = require("phantom");
 const { waitUntil } = require("async-wait-until");
 
 const REGEX = require("./regex.js");
@@ -220,26 +220,19 @@ app.get("/scrape-dangerzone", async (req, res) => {
   let news = [];
 
   try {
-    const p_data = [];
+    const instance = await phantom.create();
+    const page = await instance.createPage();
 
-    const req = http.request(
-      "http://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/fcl/riskUserList.html",
-      (res) => {
-        const data = [];
-
-        res.on("data", (chunk) => {
-          console.log(chunk)
-          data.push(chunk);
-        });
-        res.on("end", () => (p_data = data));
-      }
+    await page.open(
+      "http://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/fcl/riskUserList.html?menuSeq=314"
     );
 
-    console.log(p_data);
+    await page.property("onLoadFinished");
 
+    const html = await page.property("content");
+    
     const $ = cheerio.load(html);
 
-    console.log(response.data);
     const $newsList = $("#apiTr > tr");
 
     $newsList.each((index, child) => {
