@@ -33,7 +33,7 @@ app.get("/scrape-earthquake", async (req, res) => {
 
   try {
     const response = await axios.get(
-      "https://search.naver.com/search.naver?where=news&query=%EC%86%8D%EB%B3%B4%20%EC%A7%80%EC%A7%84&sm=tab_opt&sort=1&photo=0&field=0&pd=1&ds=&de=&docid=&related=0&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so%3Add%2Cp%3A1w&is_sug_officeid=0&office_category=0&service_area=0"
+      "https://search.naver.com/search.naver?where=news&query=%EC%86%8D%EB%B3%B4%20%EC%A7%80%EC%A7%84&sm=tab_opt&sort=1&photo=0&field=0&pd=1&ds=2023.10.18&de=2023.10.25&docid=&related=0&mynews=1&office_type=2&office_section_code=1&news_office_checked=2291&nso=so%3Add%2Cp%3A1w&is_sug_officeid=0&office_category=0&service_area=0"
     );
     const $ = cheerio.load(response.data);
 
@@ -52,10 +52,26 @@ app.get("/scrape-earthquake", async (req, res) => {
       const latitude = locTOnumb(Match(description, REGEX.latitude, 1) ?? "");
       const longitude = locTOnumb(Match(description, REGEX.longitude, 1) ?? "");
 
-      if (
-        (date !== null || location !== null || magnitude !== null) &&
-        !title.includes("중국")
-      )
+      if (title.includes("[속보]")) {
+        // get the first index of 지진
+        const index = title.indexOf("지진");
+
+        if (index !== -1) {
+          const area = title.substring(4, index).trim();
+          console.log(area);
+
+          news.push({
+            source,
+            time,
+            link,
+            title,
+            description,
+            area,
+          });
+        }
+      }
+
+      if (!title.includes("중국"))
         news.push({
           source,
           time,
@@ -216,23 +232,82 @@ app.get("/scrape-heatwave", async (req, res) => {
 /* Scrape Heat Wave */
 
 /* Scrape Danger Zone */
+function waitFor($config) {
+  $config._start = $config._start || new Date();
+
+  if ($config.timeout && new Date() - $config._start > $config.timeout) {
+    if ($config.error) $config.error();
+    if ($config.debug)
+      console.log("timedout " + (new Date() - $config._start) + "ms");
+    return;
+  }
+
+  if ($config.check()) {
+    if ($config.debug)
+      console.log("success " + (new Date() - $config._start) + "ms");
+    return $config.success();
+  }
+
+  setTimeout(waitFor, $config.interval || 0, $config);
+}
+
 app.get("/scrape-dangerzone", async (req, res) => {
   let news = [];
 
   try {
     const instance = await phantom.create();
     const page = await instance.createPage();
-
     await page.open(
       "http://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/fcl/riskUserList.html?menuSeq=314"
     );
-
     await page.property("onLoadFinished");
-
     const html = await page.property("content");
-    
-    const $ = cheerio.load(html);
 
+    waitFor({
+      debug: true,
+      interval: 0,
+      timeout: 5000,
+      check: function () {
+        return page.evaluate(function () {
+          return $("#apiTr").is(":visible");
+        });
+      },
+      success: function () {
+        const $ = cheerio.load(html);
+        const $newsList = $("#apiTr > tr");
+
+        $newsList.each((index, child) => {
+          if (index % 2 === 1) return;
+
+          const districtAreaName = $(child)
+            .find(`#apiTr_${index / 2}_dstrAreaNm`)
+            .text();
+          const fullAreaName = $(child)
+            .find(`#apiTr_${index / 2}_fullAreaNm`)
+            .text()
+            .slice(0, -1);
+          const typeNm = $(child)
+            .find(`#apiTr_${index / 2}_typeNm`)
+            .text();
+          console.log(typeNm);
+          const type = typeNm.slice(0, 4);
+          const date = typeNm.slice(-13, -4);
+
+          const dateObject = new Date(date);
+
+          news.push({
+            districtAreaName,
+            fullAreaName,
+            type,
+            date,
+            typeNm,
+          });
+        });
+      },
+      error: function () {},
+    });
+
+    /*const $ = cheerio.load(html);
     const $newsList = $("#apiTr > tr");
 
     $newsList.each((index, child) => {
@@ -245,22 +320,22 @@ app.get("/scrape-dangerzone", async (req, res) => {
         .find(`#apiTr_${index / 2}_fullAreaNm`)
         .text()
         .slice(0, -1);
-      [type, date] = $(child)
+      const typeNm = $(child)
         .find(`#apiTr_${index / 2}_typeNm`)
-        .text()
-        .split(" ( ");
-      date = date?.replace(" ) ", "");
+        .text();
+      const type = typeNm.slice(0, 4);
+      const date = typeNm.slice(-13, -4);
 
       const dateObject = new Date(date);
 
-      if (dateObject > new Date())
-        news.push({
-          districtAreaName,
-          fullAreaName,
-          type,
-          date,
-        });
-    });
+      news.push({
+        districtAreaName,
+        fullAreaName,
+        type,
+        date,
+        typeNm,
+      });
+    });*/
   } catch (error) {
     console.error(error);
     res.status(500).send("error");
