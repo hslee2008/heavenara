@@ -1,6 +1,13 @@
-import { useKakaoLoader, Map, MapMarker } from "react-kakao-maps-sdk";
+import {
+  useKakaoLoader,
+  Map,
+  MapMarker,
+  Polygon,
+  CustomOverlayMap,
+} from "react-kakao-maps-sdk";
 import { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
+import polygon from "./polygon.json";
 
 import { parseEQTitle } from "./utils/parse";
 
@@ -14,6 +21,8 @@ function App() {
   const [lat, setLat] = useState(0);
   const [lng, setLng] = useState(0);
   const [markers, setMarkers] = useState([]);
+  const [coordAverage, setCoordAverage] = useState([]);
+  const [coordData, setCoordData] = useState([]);
 
   function init(position) {
     setLat(position.coords.latitude);
@@ -27,7 +36,37 @@ function App() {
     fetch("https://heavenara.cyclic.app/scrape-earthquake")
       .then((res) => res.json())
       .then((res) => {
+        let averageArray = [];
+
         for (let i = 0; i < res.length; i++) {
+          if (res[i].area || !res[i].info?.longitude) {
+            const si = res[i].area?.split(" ")[1];
+
+            const box = polygon.features.find((feature) => {
+              return feature.properties.sggnm.includes(si);
+            });
+
+            if (!box) continue;
+
+            const coords = box.geometry.coordinates[0][0];
+            let averageLNG = 0;
+            let averageLAT = 0;
+
+            for (let i = 0; i < coords.length; i++) {
+              averageLNG += coords[i][0];
+              averageLAT += coords[i][1];
+            }
+
+            averageLNG /= coords.length;
+            averageLAT /= coords.length;
+
+            averageArray.push({ lat: averageLAT, lng: averageLNG });
+
+            setCoordData([...coordData, { ...res[i] }])
+
+            continue;
+          }
+
           const longitude = parseFloat(res[i].info.longitude);
           const latitude = parseFloat(res[i].info.latitude);
 
@@ -50,6 +89,8 @@ function App() {
             });
             return filteredArr;
           });
+
+          setCoordAverage(averageArray);
 
           if (i === res.length - 1) setAppLoading(false);
         }
@@ -77,6 +118,42 @@ function App() {
         level={12}
       >
         <MapMarker position={{ lat: lat, lng: lng }}></MapMarker>
+
+        {coordAverage.map((average, index) => (
+          <MapMarker
+            clickable
+            position={{ lat: average.lat, lng: average.lng }}
+            key={`${average.lat}/${average.lng}/${index}`}
+            image={{
+              src: "/img/earthquake.png",
+              size: { width: 40, height: 45 },
+            }}
+          >
+            <div className="overlay-wrapper">
+              <div
+                onClick={() => window.open(coordData[index].link)}
+                className="overlay"
+              >
+                <p className="title">
+                  {parseEQTitle(coordData[index].title?.slice(7))}
+                </p>
+                <p className="time">{coordData[index].time}</p>
+              </div>
+
+              <div className="button-wrapper">
+                <button
+                  onClick={() =>
+                    window.open(
+                      "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
+                    )
+                  }
+                >
+                  행동요령
+                </button>
+              </div>
+            </div>
+          </MapMarker>
+        ))}
 
         {markers.map((marker, index) => (
           <MapMarker
