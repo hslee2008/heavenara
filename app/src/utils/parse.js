@@ -1,4 +1,5 @@
 function parseEQTitle(title) {
+  title = title.replace("[속보]", "").replace("[지진 속보]", "").trim();
   const titleList = title.split(" ");
   const toReturn = [];
 

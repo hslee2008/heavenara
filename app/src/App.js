@@ -1,10 +1,4 @@
-import {
-  useKakaoLoader,
-  Map,
-  MapMarker,
-  Polygon,
-  CustomOverlayMap,
-} from "react-kakao-maps-sdk";
+import { useKakaoLoader, Map, MapMarker } from "react-kakao-maps-sdk";
 import { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
 import polygon from "./polygon.json";
@@ -62,7 +56,7 @@ function App() {
 
             averageArray.push({ lat: averageLAT, lng: averageLNG });
 
-            setCoordData([...coordData, { ...res[i] }])
+            setCoordData([...coordData, { ...res[i] }]);
 
             continue;
           }
@@ -95,7 +89,7 @@ function App() {
           if (i === res.length - 1) setAppLoading(false);
         }
       });
-  }, []);
+  }, [coordData]);
 
   if (appLoading || loading)
     return (

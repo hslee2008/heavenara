@@ -58,7 +58,6 @@ app.get("/scrape-earthquake", async (req, res) => {
 
         if (index !== -1) {
           const area = title.substring(4, index).trim();
-          console.log(area);
 
           news.push({
             source,
@@ -91,6 +90,11 @@ app.get("/scrape-earthquake", async (req, res) => {
     console.error(error);
     res.status(500).send("error");
   }
+
+  news = news.filter(
+    (item, index, self) =>
+      index === self.findIndex((t) => t.title === item.title)
+  );
 
   res.json(news);
 });
