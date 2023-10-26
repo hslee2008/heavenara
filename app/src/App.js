@@ -1,4 +1,9 @@
-import { useKakaoLoader, Map, MapMarker } from "react-kakao-maps-sdk";
+import {
+  useKakaoLoader,
+  Map,
+  MapMarker,
+  MarkerClusterer,
+} from "react-kakao-maps-sdk";
 import { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
 import polygon from "./polygon.json";
@@ -113,73 +118,83 @@ function App() {
       >
         <MapMarker position={{ lat: lat, lng: lng }}></MapMarker>
 
-        {coordAverage.map((average, index) => (
-          <MapMarker
-            clickable
-            position={{ lat: average.lat, lng: average.lng }}
-            key={`${average.lat}/${average.lng}/${index}`}
-            image={{
-              src: "/img/earthquake.png",
-              size: { width: 40, height: 45 },
-            }}
-          >
-            <div className="overlay-wrapper">
-              <div
-                onClick={() => window.open(coordData[index].link)}
-                className="overlay"
-              >
-                <p className="title">
-                  {parseEQTitle(coordData[index].title?.slice(7))}
-                </p>
-                <p className="time">{coordData[index].time}</p>
-              </div>
-
-              <div className="button-wrapper">
-                <button
-                  onClick={() =>
-                    window.open(
-                      "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
-                    )
-                  }
+        <MarkerClusterer
+          averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
+          minLevel={10} // 클러스터 할 최소 지도 레벨
+        >
+          {coordAverage.map((average, index) => (
+            <MapMarker
+              clickable
+              position={{ lat: average.lat, lng: average.lng }}
+              key={`${average.lat}/${average.lng}/${index}`}
+              image={{
+                src: "/img/earthquake.png",
+                size: { width: 40, height: 45 },
+              }}
+            >
+              <div className="overlay-wrapper">
+                <div
+                  onClick={() => window.open(coordData[index].link)}
+                  className="overlay"
                 >
-                  행동요령
-                </button>
-              </div>
-            </div>
-          </MapMarker>
-        ))}
+                  <p className="title">
+                    {parseEQTitle(coordData[index].title?.slice(7))}
+                  </p>
+                  <p className="time">{coordData[index].time}</p>
+                </div>
 
-        {markers.map((marker, index) => (
-          <MapMarker
-            clickable
-            position={{ lat: marker.lat, lng: marker.lng }}
-            key={`${marker.lat}/${marker.lng}/${index}`}
-            image={{
-              src: "/img/earthquake.png",
-              size: { width: 40, height: 45 },
-            }}
-            onClick={() => window.open(marker.link)}
-          >
-            <div className="overlay-wrapper">
-              <div onClick={() => window.open(marker.link)} className="overlay">
-                <p className="title">{parseEQTitle(marker.title?.slice(7))}</p>
-                <p className="time">{marker.time}</p>
+                <div className="button-wrapper">
+                  <button
+                    onClick={() =>
+                      window.open(
+                        "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
+                      )
+                    }
+                  >
+                    행동요령
+                  </button>
+                </div>
               </div>
+            </MapMarker>
+          ))}
 
-              <div className="button-wrapper">
-                <button
-                  onClick={() =>
-                    window.open(
-                      "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
-                    )
-                  }
+          {markers.map((marker, index) => (
+            <MapMarker
+              clickable
+              position={{ lat: marker.lat, lng: marker.lng }}
+              key={`${marker.lat}/${marker.lng}/${index}`}
+              image={{
+                src: "/img/earthquake.png",
+                size: { width: 40, height: 45 },
+              }}
+              onClick={() => window.open(marker.link)}
+            >
+              <div className="overlay-wrapper">
+                <div
+                  onClick={() => window.open(marker.link)}
+                  className="overlay"
                 >
-                  행동요령
-                </button>
+                  <p className="title">
+                    {parseEQTitle(marker.title?.slice(7))}
+                  </p>
+                  <p className="time">{marker.time}</p>
+                </div>
+
+                <div className="button-wrapper">
+                  <button
+                    onClick={() =>
+                      window.open(
+                        "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
+                      )
+                    }
+                  >
+                    행동요령
+                  </button>
+                </div>
               </div>
-            </div>
-          </MapMarker>
-        ))}
+            </MapMarker>
+          ))}
+        </MarkerClusterer>
       </Map>
     </div>
   );

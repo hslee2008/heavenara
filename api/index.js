@@ -28,77 +28,49 @@ function locTOnumb(loc) {
   return locNum;
 }
 
-app.get("/scrape-earthquake", async (req, res) => {
-  let news = [];
+app.get("/scrape-earthquake-weathergov", async (req, res) => {
+  let eqs = [];
 
-  try {
-    const response = await axios.get(
-      "https://search.naver.com/search.naver?where=news&query=%EC%86%8D%EB%B3%B4%20%EC%A7%80%EC%A7%84&sm=tab_opt&sort=1&photo=0&field=0&pd=1&ds=2023.10.18&de=2023.10.25&docid=&related=0&mynews=1&office_type=2&office_section_code=1&news_office_checked=2291&nso=so%3Add%2Cp%3A1w&is_sug_officeid=0&office_category=0&service_area=0"
-    );
-    const $ = cheerio.load(response.data);
-
-    const $newsList = $(".list_news > li");
-
-    $newsList.each((index, child) => {
-      const source = $(child).find(".info_group > a").attr("href");
-      const time = $(child).find(".info_group > .info").text();
-      const link = $(child).find(".news_contents > .dsc_thumb").attr("href");
-      const title = $(child).find(".news_contents > .news_tit").attr("title");
-      const description = $(child).find(".dsc_wrap > a").text();
-
-      const date = Match(description, REGEX.date, 0);
-      const location = Match(description, REGEX.location, 0);
-      const magnitude = Match(description, REGEX.magnitude, 0);
-      const latitude = locTOnumb(Match(description, REGEX.latitude, 1) ?? "");
-      const longitude = locTOnumb(Match(description, REGEX.longitude, 1) ?? "");
-
-      if (title.includes("[속보]")) {
-        // get the first index of 지진
-        const index = title.indexOf("지진");
-
-        if (index !== -1) {
-          const area = title.substring(4, index).trim();
-
-          news.push({
-            source,
-            time,
-            link,
-            title,
-            description,
-            area,
-          });
-        }
-      }
-
-      if (!title.includes("중국"))
-        news.push({
-          source,
-          time,
-          link,
-          title,
-          description,
-          info: {
-            date,
-            location,
-            magnitude,
-            latitude,
-            longitude,
-          },
-        });
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("error");
-  }
-
-  news = news.filter(
-    (item, index, self) =>
-      index === self.findIndex((t) => t.title === item.title)
+  const response = await axios.get(
+    "https://www.weather.go.kr/plus/eqkvol/domesticlist.jsp?dpType=a"
   );
+  const $ = cheerio.load(response.data);
 
-  res.json(news);
+  const $eqList = $(".table_develop > tbody > tr");
+
+  $eqList.each((index, child) => {
+    const date = $(child).find(":nth-child(2)").text();
+    const magnitude = $(child).find(":nth-child(3)").text();
+    const depth = $(child).find(":nth-child(4)").text();
+    const latitude = $(child).find(":nth-child(6)").text();
+    const longitude = $(child).find(":nth-child(7)").text();
+    const location = $(child).find(":nth-child(8)").text();
+    const map_pic = $(child)
+      .find(":nth-child(9) > a")
+      .attr("onclick")
+      ?.slice(16, 68);
+    const more_info = $(child).find(":nth-child(10) > a").attr("href");
+
+    const eq_date = new Date(date.split(" ")[0].replace(/\//g, "-"));
+    const today = new Date();
+
+    if (eq_date < today.setDate(today.getDate() - 3)) return;
+    if (date === '') return;
+
+    eqs.push({
+      date,
+      magnitude,
+      depth,
+      latitude,
+      longitude,
+      location,
+      map_pic,
+      more_info,
+    });
+  });
+
+  res.json(eqs);
 });
-/* Scrape Earthquake News*/
 
 /* Scrape Strong Wind News */
 app.get("/scrape-strongwind", async (req, res) => {
