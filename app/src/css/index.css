@@ -12,7 +12,12 @@
 }
 
 .overlay-wrapper {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .button-wrapper > button {
@@ -21,6 +26,7 @@
   border-radius: 5px;
   background-color: #fff;
   cursor: pointer;
+  margin: 2px;
 }
 
 button:hover {
@@ -32,12 +38,17 @@ button:hover {
 }
 
 .overlay {
-  padding: 5px;
+  padding: 7.5px;
+  padding-bottom: 1px !important;
   line-height: 3px;
   cursor: pointer;
-  text-align: center;
 }
 
-.overlay > .title {
+.overlay > .location {
   font-weight: bold;
+  font-size: 15px;
+}
+
+.magnitude {
+  font-size: 20px;
 }

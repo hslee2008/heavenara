@@ -1,14 +1,8 @@
-import {
-  useKakaoLoader,
-  Map,
-  MapMarker,
-  MarkerClusterer,
-} from "react-kakao-maps-sdk";
+import { useKakaoLoader, Map, MapMarker } from "react-kakao-maps-sdk";
 import { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
-import polygon from "./polygon.json";
 
-import { parseEQTitle } from "./utils/parse";
+import { toDateDifference } from "./utils/date";
 
 import "./css/App.css";
 
@@ -20,8 +14,6 @@ function App() {
   const [lat, setLat] = useState(0);
   const [lng, setLng] = useState(0);
   const [markers, setMarkers] = useState([]);
-  const [coordAverage, setCoordAverage] = useState([]);
-  const [coordData, setCoordData] = useState([]);
 
   function init(position) {
     setLat(position.coords.latitude);
@@ -43,14 +35,28 @@ function App() {
             latitude,
             longitude,
             location,
-            map_pic
-          } = res[i]
-          
-          
+            map_pic,
+            more_info,
+          } = res[i];
+
+          setMarkers((markers) => [
+            ...markers,
+            {
+              lat: latitude,
+              lng: longitude,
+              location: location,
+              date: date,
+              link: "https://www.weather.go.kr/" + map_pic,
+              more_info: "https://www.weather.go.kr/" + more_info,
+              magnitude: magnitude,
+              depth: depth,
+            },
+          ]);
+
           if (i === res.length - 1) setAppLoading(false);
         }
       });
-  }, [coordData]);
+  }, []);
 
   if (appLoading || loading)
     return (
@@ -74,31 +80,28 @@ function App() {
       >
         <MapMarker position={{ lat: lat, lng: lng }}></MapMarker>
 
-        <MarkerClusterer
-          averageCenter={true} // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
-          minLevel={10} // 클러스터 할 최소 지도 레벨
-        >
-          {coordAverage.map((average, index) => (
-            <MapMarker
-              clickable
-              position={{ lat: average.lat, lng: average.lng }}
-              key={`${average.lat}/${average.lng}/${index}`}
-              image={{
-                src: "/img/earthquake.png",
-                size: { width: 40, height: 45 },
-              }}
-            >
-              <div className="overlay-wrapper">
-                <div
-                  onClick={() => window.open(coordData[index].link)}
-                  className="overlay"
-                >
-                  <p className="title">
-                    {parseEQTitle(coordData[index].title?.slice(7))}
-                  </p>
-                  <p className="time">{coordData[index].time}</p>
-                </div>
+        {markers.map((marker, index) => (
+          <MapMarker
+            clickable
+            position={{ lat: marker.lat, lng: marker.lng }}
+            key={`${marker.lat}/${marker.lng}/${index}`}
+            image={{
+              src: "/img/earthquake.png",
+              size: { width: 30, height: 35 },
+            }}
+            onClick={() => window.open(marker.link)}
+          >
+            <div className="overlay-wrapper">
+              <div onClick={() => window.open(marker.link)} className="overlay">
+                <p className="location">{marker.location}</p>
+                <p className="date">{toDateDifference(marker.date)}일 전</p>
+              </div>
 
+              <div className="magnitude-wrapper">
+                <p className="magnitude">{marker.magnitude} 규모</p>
+              </div>
+
+              {marker.magnitude > 2.5 && (
                 <div className="button-wrapper">
                   <button
                     onClick={() =>
@@ -109,48 +112,18 @@ function App() {
                   >
                     행동요령
                   </button>
+                  {marker.more_info &&
+                    marker.more_info !==
+                      "https://www.weather.go.kr/undefined" && (
+                      <button onClick={() => window.open(marker.more_info)}>
+                        더보기
+                      </button>
+                    )}
                 </div>
-              </div>
-            </MapMarker>
-          ))}
-
-          {markers.map((marker, index) => (
-            <MapMarker
-              clickable
-              position={{ lat: marker.lat, lng: marker.lng }}
-              key={`${marker.lat}/${marker.lng}/${index}`}
-              image={{
-                src: "/img/earthquake.png",
-                size: { width: 40, height: 45 },
-              }}
-              onClick={() => window.open(marker.link)}
-            >
-              <div className="overlay-wrapper">
-                <div
-                  onClick={() => window.open(marker.link)}
-                  className="overlay"
-                >
-                  <p className="title">
-                    {parseEQTitle(marker.title?.slice(7))}
-                  </p>
-                  <p className="time">{marker.time}</p>
-                </div>
-
-                <div className="button-wrapper">
-                  <button
-                    onClick={() =>
-                      window.open(
-                        "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/prevent09.html?menuSeq=126"
-                      )
-                    }
-                  >
-                    행동요령
-                  </button>
-                </div>
-              </div>
-            </MapMarker>
-          ))}
-        </MarkerClusterer>
+              )}
+            </div>
+          </MapMarker>
+        ))}
       </Map>
     </div>
   );
