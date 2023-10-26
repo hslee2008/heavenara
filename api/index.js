@@ -42,8 +42,12 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
     const date = $(child).find(":nth-child(2)").text();
     const magnitude = $(child).find(":nth-child(3)").text();
     const depth = $(child).find(":nth-child(4)").text();
-    const latitude = $(child).find(":nth-child(6)").text();
-    const longitude = $(child).find(":nth-child(7)").text();
+    const latitude = $(child).find(":nth-child(6)").text().trim().split(" ")[0];
+    const longitude = $(child)
+      .find(":nth-child(7)")
+      .text()
+      .trim()
+      .split(" ")[0];
     const location = $(child).find(":nth-child(8)").text();
     const map_pic = $(child)
       .find(":nth-child(9) > a")
@@ -55,7 +59,7 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
     const today = new Date();
 
     if (eq_date < today.setDate(today.getDate() - 3)) return;
-    if (date === '') return;
+    if (date === "") return;
 
     eqs.push({
       date,

@@ -32,65 +32,21 @@ function App() {
     navigator.geolocation.getCurrentPosition(init);
 
     // scrape earthquake
-    fetch("https://heavenara.cyclic.app/scrape-earthquake")
+    fetch("https://heavenara.cyclic.app/scrape-earthquake-weathergov")
       .then((res) => res.json())
       .then((res) => {
-        let averageArray = [];
-
         for (let i = 0; i < res.length; i++) {
-          if (res[i].area || !res[i].info?.longitude) {
-            const si = res[i].area?.split(" ")[1];
-
-            const box = polygon.features.find((feature) => {
-              return feature.properties.sggnm.includes(si);
-            });
-
-            if (!box) continue;
-
-            const coords = box.geometry.coordinates[0][0];
-            let averageLNG = 0;
-            let averageLAT = 0;
-
-            for (let i = 0; i < coords.length; i++) {
-              averageLNG += coords[i][0];
-              averageLAT += coords[i][1];
-            }
-
-            averageLNG /= coords.length;
-            averageLAT /= coords.length;
-
-            averageArray.push({ lat: averageLAT, lng: averageLNG });
-
-            setCoordData([...coordData, { ...res[i] }]);
-
-            continue;
-          }
-
-          const longitude = parseFloat(res[i].info.longitude);
-          const latitude = parseFloat(res[i].info.latitude);
-
-          const title = res[i].title;
-          const source = res[i].source;
-          const time = res[i].time;
-          const link = res[i].link;
-
-          setMarkers((markers) => [
-            ...markers,
-            { lat: latitude, lng: longitude, title, source, time, link },
-          ]);
-
-          setMarkers((markers) => {
-            const seen = new Set();
-            const filteredArr = markers.filter((el) => {
-              const duplicate = seen.has(el.lat + el.lng);
-              seen.add(el.lat + el.lng);
-              return !duplicate;
-            });
-            return filteredArr;
-          });
-
-          setCoordAverage(averageArray);
-
+          const {
+            date,
+            magnitude,
+            depth,
+            latitude,
+            longitude,
+            location,
+            map_pic
+          } = res[i]
+          
+          
           if (i === res.length - 1) setAppLoading(false);
         }
       });
