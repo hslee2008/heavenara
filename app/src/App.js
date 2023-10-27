@@ -85,7 +85,7 @@ function App() {
   }, []);
 
   if (appLoading || loading) return <Loading percentage={percentage}></Loading>;
-  if (process.env.NODE_ENV === "production" && error) return <Error></Error>;
+  if (error && !error.toString()?.includes("TypeError")) return <Error></Error>;
 
   return (
     <>
