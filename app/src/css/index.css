@@ -18,6 +18,12 @@
   align-items: center;
   margin-right: auto;
   margin-left: auto;
+
+  width: 250px;
+}
+
+:has(.overlay-wrapper) {
+  border-radius: 10px !important;
 }
 
 .button-wrapper > button {
@@ -39,16 +45,16 @@ button:hover {
 
 .overlay {
   padding: 7.5px;
-  padding-bottom: 1px !important;
-  line-height: 3px;
+  line-height: 4.5px;
   cursor: pointer;
 }
 
 .overlay > .location {
   font-weight: bold;
-  font-size: 15px;
+  font-size: 15.5px;
 }
 
-.magnitude {
-  font-size: 20px;
+.overlay > .more {
+  font-size: 13px;
+  color: grey;
 }

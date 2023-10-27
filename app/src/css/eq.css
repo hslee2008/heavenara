@@ -1,0 +1,39 @@
+/* <= 2.5 (No feeling) */
+.eq-1 {
+  opacity: 0.6;
+}
+
+/* 2.6 <= x <= 5.4 (minor damage) */
+.eq-2 {
+  opacity: 0.8;
+  border: yellow solid 3px;
+  border-radius: 10px;
+}
+
+/* 5.5 <= x <= 6.0 (damage to structure) */
+.eq-3 {
+  opacity: 0.9;
+  border: #FFBF00 solid 3px;
+  border-radius: 10px;
+}
+
+/* 6.1 <= x <= 6.9 (major damage) */
+.eq-4 {
+  opacity: 1;
+  border: orange solid 3px;
+  border-radius: 10px;
+}
+
+/* 7.0 <= x <= 7.9 (serious damage) */
+.eq-5 {
+  opacity: 1;
+  border: #FF4D00 solid 5px;
+  border-radius: 10px;
+}
+
+/* 8.0 <= x (total destroy) */
+.eq-6 {
+  opacity: 1;
+  border: red solid 5px;
+  border-radius: 10px;
+}
