@@ -1,12 +1,8 @@
 {
   "short_name": "울타리 너머로",
   "name": "울타리 너머로",
+  "description": "울타리 너머로",
   "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
     {
       "src": "logo192.png",
       "type": "image/png",
@@ -18,8 +14,24 @@
       "sizes": "512x512"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshot/desktop.png",
+      "sizes": "1920x897",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Earthquake Example - Desktop"
+    },
+    {
+      "src": "/screenshot/mobile.png",
+      "sizes": "719x1342",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Earthquake Example - Mobile"
+    }
+  ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#A3D6EB",
+  "background_color": "#A3D6EB"
 }

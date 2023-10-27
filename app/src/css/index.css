@@ -8,7 +8,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #A3D6EB;
+  background-color: #a3d6eb;
   z-index: 9999;
 }
 
@@ -25,6 +25,10 @@
 
 :has(.overlay-wrapper) {
   border-radius: 10px !important;
+}
+
+#__react-kakao-maps-sdk___Map {
+  border-radius: 0px !important;
 }
 
 .button-wrapper > button {
