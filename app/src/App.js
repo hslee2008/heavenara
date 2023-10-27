@@ -25,9 +25,13 @@ function App() {
     appkey: "6072e8a0344039acacc746c3c35906fb",
   });
 
+  const [current, setCurrent] = useState("지진");
+
   const [lat, setLat] = useState(0);
   const [lng, setLng] = useState(0);
-  const [markers, setMarkers] = useState([]);
+
+  const [EQmarkers, setEQMarkers] = useState([]);
+  const [FFmarkers, setFFMarkers] = useState([]);
 
   const [open, setOpen] = useState(false);
   const [openLink, setOpenLink] = useState("");
@@ -80,12 +84,36 @@ function App() {
             if (i === res.length - 1) setAppLoading(false);
           }
 
-          setPercentage(90);
-          setMarkers(temp_markers);
+          setEQMarkers(temp_markers);
+          setPercentage(70);
         });
     }
 
+    async function fetchFFS() {
+      const temp_markers = [];
+
+      await fetch(
+        "https://api.apify.com/v2/datasets/5cHXMX9PNpR64o4zI/items?token=apify_api_cyf3A0caKvPqYTpIVRitsmq7oPnE4T3g9hzw"
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          for (let i = 0; i < res.length; i++) {
+            const { location, date, status } = res[i];
+
+            temp_markers.push({
+              location,
+              date,
+              status,
+            });
+          }
+        });
+
+      setFFMarkers((prev) => [...prev, ...temp_markers]);
+      setPercentage(80);
+    }
+
     fetchEarthquake();
+    fetchFFS();
     setPercentage(100);
   }, []);
 
@@ -102,6 +130,12 @@ function App() {
         <SpeedDialAction
           icon={<img src="/img/eq-icon.png" width="40" alt="earthquake" />}
           tooltipTitle="지진"
+          onClick={() => setCurrent("지진")}
+        />
+        <SpeedDialAction
+          icon={<img src="/img/ff-icon.png" width="40" alt="forest fire" />}
+          tooltipTitle="산불"
+          onClick={() => setCurrent("산불")}
         />
       </SpeedDial>
 
@@ -136,19 +170,37 @@ function App() {
           <MapMarker position={{ lat: lat, lng: lng }}></MapMarker>
 
           <MarkerClusterer averageCenter>
-            {markers.map((marker, index) => (
-              <MapMarker
-                clickable
-                position={{ lat: marker.lat, lng: marker.lng }}
-                key={`${marker.lat}/${marker.lng}/${index}`}
-                image={{
-                  src: "/img/earthquake.png",
-                  size: { width: 30, height: 35 },
-                }}
-              >
-                <EQinfo {...{ marker, openDialog }}></EQinfo>
-              </MapMarker>
-            ))}
+            {current === "지진" &&
+              EQmarkers.map((marker, index) => (
+                <MapMarker
+                  clickable
+                  position={{ lat: marker.lat, lng: marker.lng }}
+                  key={`${marker.lat}/${marker.lng}/${index}`}
+                  image={{
+                    src: "/img/earthquake.png",
+                    size: { width: 30, height: 35 },
+                  }}
+                >
+                  <EQinfo {...{ marker, openDialog }}></EQinfo>
+                </MapMarker>
+              ))}
+
+            {current === "산불" &&
+              FFmarkers.map((marker, index) => (
+                <MapMarker
+                  clickable
+                  position={{
+                    
+                  }}
+                  key={`${marker.location[0]}/${marker.location[1]}/${index}`}
+                  image={{
+                    src: "/img/forest-fire.png",
+                    size: { width: 30, height: 35 },
+                  }}
+                >
+                  <EQinfo {...{ marker, openDialog }}></EQinfo>
+                </MapMarker>
+              ))}
           </MarkerClusterer>
         </Map>
       </div>

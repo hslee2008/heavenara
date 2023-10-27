@@ -2,7 +2,6 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
-const puppeteer = require("puppeteer");
 
 const app = express();
 app.use(cors());
@@ -56,45 +55,26 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
   res.json(eqs);
 });
 
-/* Scrape Forest Fire News */
-app.get("/scrape-forestfire-weathergov", async (req, res) => {
-  let ffs = [];
+/* Scrape Wind News */
+app.get("/scrape-wind-weathergov", async (req, res) => {
+  let eqs = [];
 
-  const browser = await puppeteer.launch({
-    headless: "new"
-  });
-  const page = await browser.newPage();
-
-  await page.goto(
-    "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/sfc/acd/frfireUserList.jsp?menuSeq=98",
-    {
-      waitUntil: "load",
-    }
+  const response = await axios.get(
+    "https://www.weather.go.kr/w/weather/warning/status.do"
   );
+  const $ = cheerio.load(response.data);
 
-  await page.waitForSelector(".content");
-  await page.waitForTimeout(1000);
+  const $eqList = $("tbody > tr");
 
-  const ffList = await page.$$eval(".boardList_table > tbody > tr", (rows) => {
-    const data = [];
+  $eqList.each((index, child) => {
+    const type = $(child).find(":nth-child(1)").text();
 
-    rows.forEach((row) => {
-      console.log(row);
-      const location = row.querySelector(":nth-child(1) > a")?.textContent;
-      const date = row.querySelector(":nth-child(2)")?.textContent;
-      const status = row.querySelector(":nth-child(3)")?.textContent;
-
-      data.push({ location, date, status });
-    });
-
-    return data;
+    eqs.push({
+      type
+    })
   });
 
-  ffs = ffList;
-
-  await browser.close();
-
-  res.json(ffs);
+  res.json(eqs);
 });
 
 app.listen(3000, () => {
