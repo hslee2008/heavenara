@@ -6,7 +6,12 @@ import {
 } from "react-kakao-maps-sdk";
 import { useEffect, useState } from "react";
 
-import { Dialog } from "@mui/material";
+import {
+  Dialog,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
+} from "@mui/material";
 
 import DialogBar from "./components/DialogBar";
 import EQinfo from "./components/EQinfo";
@@ -89,6 +94,17 @@ function App() {
 
   return (
     <>
+      <SpeedDial
+        ariaLabel="SpeedDial basic example"
+        sx={{ position: "absolute", bottom: 16, right: 16 }}
+        icon={<SpeedDialIcon />}
+      >
+        <SpeedDialAction
+          icon={<img src="/img/eq-icon.png" width="40" alt="earthquake" />}
+          tooltipTitle="지진"
+        />
+      </SpeedDial>
+
       <Dialog
         fullScreen
         open={open}
