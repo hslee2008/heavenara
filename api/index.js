@@ -60,7 +60,9 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
 app.get("/scrape-forestfire-weathergov", async (req, res) => {
   let ffs = [];
 
-  const browser = await puppeteer.launch({});
+  const browser = await puppeteer.launch({
+    headless: "new"
+  });
   const page = await browser.newPage();
 
   await page.goto(
