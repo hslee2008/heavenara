@@ -98,23 +98,32 @@ function App() {
         .then((res) => res.json())
         .then((res) => {
           for (let i = 0; i < res.length; i++) {
-            const { location, date, status } = res[i];
+            let { location, date } = res[i];
+
+            location = location.replace("지도보기", "").trim();
+            date = date.replace("지도보기", "").trim();
+
+            const lng = 36.9665;
+            const lat = 126.4213;
 
             temp_markers.push({
               location,
               date,
-              status,
+              lng,
+              lat,
             });
           }
         });
 
       setFFMarkers((prev) => [...prev, ...temp_markers]);
-      setPercentage(80);
+      setPercentage(100);
     }
 
     fetchEarthquake();
-    fetchFFS();
-    setPercentage(100);
+    setTimeout(() => {
+      fetchFFS();
+    }, 1000);
+    setPercentage(80);
   }, []);
 
   if (appLoading || loading) return <Loading percentage={percentage}></Loading>;
@@ -173,7 +182,6 @@ function App() {
             {current === "지진" &&
               EQmarkers.map((marker, index) => (
                 <MapMarker
-                  clickable
                   position={{ lat: marker.lat, lng: marker.lng }}
                   key={`${marker.lat}/${marker.lng}/${index}`}
                   image={{
@@ -185,22 +193,40 @@ function App() {
                 </MapMarker>
               ))}
 
-            {current === "산불" &&
-              FFmarkers.map((marker, index) => (
-                <MapMarker
-                  clickable
-                  position={{
-                    
-                  }}
-                  key={`${marker.location[0]}/${marker.location[1]}/${index}`}
-                  image={{
-                    src: "/img/forest-fire.png",
-                    size: { width: 30, height: 35 },
-                  }}
-                >
-                  <EQinfo {...{ marker, openDialog }}></EQinfo>
-                </MapMarker>
-              ))}
+            {current === "산불" && (
+              <MapMarker
+                position={{ lat: 36.9665, lng: 126.4213 }}
+                image={{
+                  src: "/img/ff-icon.png",
+                  size: { width: 35, height: 35 },
+                }}
+              >
+                <div className="overlay-wrapper">
+                  <div
+                    onClick={() =>
+                      openDialog(
+                        "https://www.gukjenews.com/news/articleView.html?idxno=2840426"
+                      )
+                    }
+                    className="overlay"
+                  >
+                    <p className="location">{FFmarkers[0].location}</p>
+                    <p className="more">1일 전 · 진화완료</p>
+                  </div>
+                  <div className="button-wrapper">
+                    <button
+                      onClick={() =>
+                        openDialog(
+                          "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/SDIJKM5117.html?menuSeq=127"
+                        )
+                      }
+                    >
+                      행동요령
+                    </button>
+                  </div>
+                </div>
+              </MapMarker>
+            )}
           </MarkerClusterer>
         </Map>
       </div>
