@@ -37,7 +37,7 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
     const eq_date = new Date(date.split(" ")[0].replace(/\//g, "-"));
     const today = new Date();
 
-    if (eq_date < today.setDate(today.getDate() - 3)) return;
+    if (eq_date < today.setDate(today.getDate() - 7)) return;
     if (date === "") return;
 
     eqs.push({
