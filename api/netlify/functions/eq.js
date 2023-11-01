@@ -1,13 +1,7 @@
-const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
-const cors = require("cors");
 
-const app = express();
-app.use(cors());
-
-/* Scrape Earthquake */
-app.get("/scrape-earthquake-weathergov", async (req, res) => {
+exports.handler = async (event, context) => {
   let eqs = [];
 
   const response = await axios.get(
@@ -21,6 +15,7 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
     const date = $(child).find(":nth-child(2)").text();
     const magnitude = $(child).find(":nth-child(3)").text();
     const depth = $(child).find(":nth-child(4)").text();
+    const max_intensity = $(child).find(":nth-child(5)").text();
     const latitude = $(child).find(":nth-child(6)").text().trim().split(" ")[0];
     const longitude = $(child)
       .find(":nth-child(7)")
@@ -44,6 +39,7 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
       date,
       magnitude,
       depth,
+      max_intensity,
       latitude,
       longitude,
       location,
@@ -52,31 +48,15 @@ app.get("/scrape-earthquake-weathergov", async (req, res) => {
     });
   });
 
-  res.json(eqs);
-});
+  const responseHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+  };
 
-/* Scrape Wind News */
-app.get("/scrape-wind-weathergov", async (req, res) => {
-  let eqs = [];
-
-  const response = await axios.get(
-    "https://www.weather.go.kr/w/weather/warning/status.do"
-  );
-  const $ = cheerio.load(response.data);
-
-  const $eqList = $("tbody > tr");
-
-  $eqList.each((index, child) => {
-    const type = $(child).find(":nth-child(1)").text();
-
-    eqs.push({
-      type
-    })
-  });
-
-  res.json(eqs);
-});
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+  return {
+    statusCode: 200,
+    headers: responseHeaders,
+    body: JSON.stringify(eqs),
+  };
+};

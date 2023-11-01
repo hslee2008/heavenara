@@ -53,7 +53,9 @@ function App() {
       setPercentage(30);
 
       // scrape earthquake
-      await fetch("https://heavenara.cyclic.app/scrape-earthquake-weathergov")
+      await fetch(
+        "https://glowing-empanada-ae3094.netlify.app/.netlify/functions/eq"
+      )
         .then((res) => res.json())
         .then((res) => {
           const temp_markers = [];
@@ -92,30 +94,37 @@ function App() {
     async function fetchFFS() {
       const temp_markers = [];
 
-      await fetch(
-        "https://api.apify.com/v2/datasets/5cHXMX9PNpR64o4zI/items?token=apify_api_cyf3A0caKvPqYTpIVRitsmq7oPnE4T3g9hzw"
-      )
+      fetch("https://glowing-empanada-ae3094.netlify.app/.netlify/functions/ff")
         .then((res) => res.json())
         .then((res) => {
-          for (let i = 0; i < res.length; i++) {
-            let { location, date } = res[i];
+          const data = res.list;
 
-            location = location.replace("지도보기", "").trim();
-            date = date.replace("지도보기", "").trim();
+          for (let i = 0; i < data.length; i++) {
+            const { tpStatus, loc, mapTime } = data[i];
 
-            const lng = 36.9665;
-            const lat = 126.4213;
+            const kakao = window.kakao;
+            var geocoder = new kakao.maps.services.Geocoder();
 
-            temp_markers.push({
-              location,
-              date,
-              lng,
-              lat,
+            geocoder.addressSearch(loc, function (result, status) {
+              if (status === kakao.maps.services.Status.OK) {
+                const lat = result[0].y;
+                const lng = result[0].x;
+
+                temp_markers.push({
+                  lat,
+                  lng,
+                  loc,
+                  mapTime,
+                  tpStatus,
+                  link: "https://www.weather.go.kr/w/ff/flood.do",
+                  more_info: "https://www.weather.go.kr/w/ff/flood.do",
+                });
+              }
             });
           }
         });
 
-      setFFMarkers((prev) => [...prev, ...temp_markers]);
+      setFFMarkers(temp_markers);
       setPercentage(100);
     }
 
@@ -192,41 +201,43 @@ function App() {
                   <EQinfo {...{ marker, openDialog }}></EQinfo>
                 </MapMarker>
               ))}
-
-            {current === "산불" && (
-              <MapMarker
-                position={{ lat: 36.9665, lng: 126.4213 }}
-                image={{
-                  src: "/img/ff-icon.png",
-                  size: { width: 35, height: 35 },
-                }}
-              >
-                <div className="overlay-wrapper">
-                  <div
-                    onClick={() =>
-                      openDialog(
-                        "https://www.gukjenews.com/news/articleView.html?idxno=2840426"
-                      )
-                    }
-                    className="overlay"
-                  >
-                    <p className="location">{FFmarkers[0].location}</p>
-                    <p className="more">1일 전 · 진화완료</p>
-                  </div>
-                  <div className="button-wrapper">
-                    <button
+              
+            {current === "산불" &&
+              FFmarkers.map((marker, index) => (
+                <MapMarker
+                  key={`${marker.lat}/${marker.lng}/${index}`}
+                  position={{ lat: marker.lat, lng: marker.lng }}
+                  image={{
+                    src: "/img/ff-icon.png",
+                    size: { width: 35, height: 35 },
+                  }}
+                >
+                  <div className="overlay-wrapper">
+                    <div
                       onClick={() =>
                         openDialog(
-                          "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/SDIJKM5117.html?menuSeq=127"
+                          "https://www.gukjenews.com/news/articleView.html?idxno=2840426"
                         )
                       }
+                      className="overlay"
                     >
-                      행동요령
-                    </button>
+                      <p className="location">{marker.loc}</p>
+                      <p className="more">{marker.mapTime} · {marker.tpStatus}</p>
+                    </div>
+                    <div className="button-wrapper">
+                      <button
+                        onClick={() =>
+                          openDialog(
+                            "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/SDIJKM5117.html?menuSeq=127"
+                          )
+                        }
+                      >
+                        행동요령
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </MapMarker>
-            )}
+                </MapMarker>
+              ))}
           </MarkerClusterer>
         </Map>
       </div>
