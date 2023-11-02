@@ -11,15 +11,10 @@ import {
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
+  Snackbar,
 } from "@mui/material";
 
-import DialogBar from "./components/DialogBar";
-import EQinfo from "./components/window/EQinfo";
-import FFinfo from "./components/window/FFinfo";
-import Loading from "./components/Loading";
-import Error from "./components/Error";
-
-import { toDateDifference } from "./utils/date";
+import {DialogBar, EQinfo, FFinfo, Loading, Error} from "./components";
 
 function App() {
   const [appLoading, setAppLoading] = useState(true);
@@ -27,6 +22,7 @@ function App() {
   const [loading, error] = useKakaoLoader({
     appkey: "6072e8a0344039acacc746c3c35906fb",
   });
+  const [denied, setDenied] = useState(false);
 
   const [current, setCurrent] = useState("지진");
 
@@ -52,16 +48,29 @@ function App() {
   useEffect(() => {
     async function fetchEarthquake() {
       setPercentage(15);
+
       navigator.geolocation.getCurrentPosition(init);
+
+      navigator.geolocation.watchPosition(
+        function (position) {
+          console.log("Latitude is :", position.coords.latitude);
+          console.log("Longitude is :", position.coords.longitude);
+        },
+        function (error) {
+          if (error.code === error.PERMISSION_DENIED) setDenied(true);
+        }
+      );
+
       setPercentage(30);
 
-      // scrape earthquake
       await fetch(
         "https://glowing-empanada-ae3094.netlify.app/.netlify/functions/eq"
       )
         .then((res) => res.json())
         .then((res) => {
           const temp_markers = [];
+
+          setPercentage(40);
 
           for (let i = 0; i < res.length; i++) {
             const {
@@ -90,7 +99,7 @@ function App() {
           }
 
           setEQMarkers(temp_markers);
-          setPercentage(70);
+          setPercentage(45);
         });
     }
 
@@ -101,6 +110,8 @@ function App() {
         .then((res) => res.json())
         .then((res) => {
           const data = res.list;
+
+          setPercentage(100);
 
           for (let i = 0; i < data.length; i++) {
             const { tpStatus, loc, mapTime } = data[i];
@@ -128,14 +139,15 @@ function App() {
         });
 
       setFFMarkers(temp_markers);
-      setPercentage(100);
+      setPercentage(70);
     }
 
     fetchEarthquake();
+    setPercentage(50);
     setTimeout(() => {
+      setPercentage(60);
       fetchFFS();
     }, 1000);
-    setPercentage(80);
   }, []);
 
   if (appLoading || loading) return <Loading percentage={percentage}></Loading>;
@@ -143,6 +155,13 @@ function App() {
 
   return (
     <>
+      <Snackbar
+        open={denied}
+        autoHideDuration={6000}
+        onClose={() => setDenied(false)}
+        message="위치 추적 권한이 없습니다."
+      />
+
       <SpeedDial
         ariaLabel="SpeedDial basic example"
         sx={{ position: "absolute", bottom: 16, right: 16 }}
