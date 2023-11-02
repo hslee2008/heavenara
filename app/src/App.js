@@ -14,9 +14,12 @@ import {
 } from "@mui/material";
 
 import DialogBar from "./components/DialogBar";
-import EQinfo from "./components/EQinfo";
+import EQinfo from "./components/window/EQinfo";
+import FFinfo from "./components/window/FFinfo";
 import Loading from "./components/Loading";
 import Error from "./components/Error";
+
+import { toDateDifference } from "./utils/date";
 
 function App() {
   const [appLoading, setAppLoading] = useState(true);
@@ -201,41 +204,18 @@ function App() {
                   <EQinfo {...{ marker, openDialog }}></EQinfo>
                 </MapMarker>
               ))}
-              
+
             {current === "산불" &&
               FFmarkers.map((marker, index) => (
                 <MapMarker
                   key={`${marker.lat}/${marker.lng}/${index}`}
                   position={{ lat: marker.lat, lng: marker.lng }}
                   image={{
-                    src: "/img/ff-icon.png",
-                    size: { width: 35, height: 35 },
+                    src: "/img/forestfire.png",
+                    size: { width: 30, height: 35 },
                   }}
                 >
-                  <div className="overlay-wrapper">
-                    <div
-                      onClick={() =>
-                        openDialog(
-                          "https://www.gukjenews.com/news/articleView.html?idxno=2840426"
-                        )
-                      }
-                      className="overlay"
-                    >
-                      <p className="location">{marker.loc}</p>
-                      <p className="more">{marker.mapTime} · {marker.tpStatus}</p>
-                    </div>
-                    <div className="button-wrapper">
-                      <button
-                        onClick={() =>
-                          openDialog(
-                            "https://www.safekorea.go.kr/idsiSFK/neo/sfk/cs/contents/prevent/SDIJKM5117.html?menuSeq=127"
-                          )
-                        }
-                      >
-                        행동요령
-                      </button>
-                    </div>
-                  </div>
+                  <FFinfo {...{ marker, openDialog }}></FFinfo>
                 </MapMarker>
               ))}
           </MarkerClusterer>

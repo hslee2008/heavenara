@@ -5,7 +5,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 exports.handler = async (req, res) => {
-  const startDate = new Date(new Date().setDate(new Date().getDate() - 30));
+  const startDate = new Date(new Date().setDate(new Date().getDate() - 5));
   const endDate = new Date();
   let sd_day = 0;
   let ed_day = 0;

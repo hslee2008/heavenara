@@ -1,4 +1,6 @@
-import { toDateDifference } from "../utils/date";
+import { toDateDifference } from "../../utils/date";
+
+import "../../css/disaster/eq.css";
 
 function EQclass(magnitude) {
   if (magnitude <= 2.5) return "eq-1";

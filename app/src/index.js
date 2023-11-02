@@ -4,7 +4,6 @@ import App from "./App";
 
 import "./css/App.css";
 import "./css/index.css";
-import "./css/eq.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
