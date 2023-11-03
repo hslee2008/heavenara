@@ -13,7 +13,12 @@ function EQclass(magnitude) {
 
 function EQinfo({ marker, openDialog }) {
   return (
-    <div className={`overlay-wrapper ${EQclass(marker.magnitude)}`}>
+    <div
+      style={{
+        width: "calc(100% + 10px)",
+      }}
+      className={`overlay-wrapper ${EQclass(marker.magnitude)}`}
+    >
       <div onClick={() => window.open(marker.link)} className="overlay">
         <p className="location">{marker.location}</p>
         <p className="more">

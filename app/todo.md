@@ -1,1 +1,0 @@
-1. Create a snackbar for when the user does not allow location tracking

@@ -1,6 +1,6 @@
 import { toDateDifference } from "../../utils/date";
 
-import '../../css/disaster/ff.css';
+import "../../css/disaster/ff.css";
 
 function FFinfo({ marker, openDialog }) {
   return (
@@ -9,10 +9,11 @@ function FFinfo({ marker, openDialog }) {
         marker.tpStatus === "진화중" && "trying-to-put-out"
       }`}
     >
-      <div
-        className="overlay"
-      >
-        <p className="location">{marker.loc}</p>
+      <div className="overlay">
+        <p className="location">
+          {marker.loc.split(" ").slice(0, 2).join(" ")}
+        </p>
+        <p className="more">{marker.loc.split(" ").slice(2).join(" ")}</p>
         <p className="more">
           {toDateDifference(marker.mapTime)}일 전 · {marker.tpStatus}
         </p>

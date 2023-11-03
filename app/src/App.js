@@ -14,7 +14,7 @@ import {
   Snackbar,
 } from "@mui/material";
 
-import {DialogBar, EQinfo, FFinfo, Loading, Error} from "./components";
+import { DialogBar, EQinfo, FFinfo, Loading, Error } from "./components";
 
 function App() {
   const [appLoading, setAppLoading] = useState(true);
@@ -151,7 +151,7 @@ function App() {
   }, []);
 
   if (appLoading || loading) return <Loading percentage={percentage}></Loading>;
-  if (error && !error.toString()?.includes("TypeError")) return <Error></Error>;
+  if (error) return <Error error={error}></Error>;
 
   return (
     <>

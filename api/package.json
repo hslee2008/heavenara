@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "netlify deploy --prod"
+    "deploy": "netlify deploy --prod"
   },
   "author": "",
   "license": "MIT",
