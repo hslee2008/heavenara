@@ -11,22 +11,25 @@ function EQclass(magnitude) {
   else return "eq-6";
 }
 
-function EQinfo({ marker, openDialog }) {
+function EQinfo({ marker, openDialog, openMore }) {
   return (
     <div
       style={{
-        width: "calc(100% + 10px)",
+        width: "calc(100% + 1px)",
       }}
       className={`overlay-wrapper ${EQclass(marker.magnitude)}`}
     >
-      <div onClick={() => window.open(marker.link)} className="overlay">
+      <div onClick={openMore} className="overlay">
         <p className="location">{marker.location}</p>
         <p className="more">
           {toDateDifference(marker.date)}일 전 · {marker.magnitude} 규모
         </p>
+        <p className="more">
+          최대 진도 {marker.maxIntensity} · 깊이 {marker.depth}
+        </p>
       </div>
 
-      {marker.magnitude > 2.5 && (
+      {marker.magnitude >= 2 && (
         <div className="button-wrapper">
           <button
             onClick={() =>

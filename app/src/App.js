@@ -3,8 +3,11 @@ import {
   Map,
   MapMarker,
   MarkerClusterer,
+  MapTypeControl,
+  ZoomControl,
+  Circle,
 } from "react-kakao-maps-sdk";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 import {
   Dialog,
@@ -12,16 +15,35 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
   Snackbar,
+  Card,
+  CardContent,
+  Typography,
 } from "@mui/material";
 
 import { DialogBar, EQinfo, FFinfo, Loading, Error } from "./components";
 
+const eqMagnitude = {
+  Ⅰ: "대부분 사람들은 느낄 수 없으나, 지진계에는 기록된다.",
+  Ⅱ: "조용한 상태나 건물 위층에 있는 소수의 사람만 느낀다.",
+  Ⅲ: "실내, 특히 건물 위층에 있는 사람이 현저하게 느끼며, 정지하고 있는 차가 약간 흔들린다.",
+  Ⅳ: "실내에서 많은 사람이 느끼고, 밤에는 잠에서 깨기도 하며, 그릇과 창문 등이 흔들린다.",
+  Ⅴ: "거의 모든 사람이 진동을 느끼고, 그릇, 창문 등이 깨지기도 하며, 불안정한 물체는 넘어진다.",
+  Ⅵ: "모든 사람이 느끼고, 일부 무거운 가구가 움직이며, 벽의 석회가 떨어지기도 한다.",
+  Ⅶ: "일반 건물에 약간의 피해가 발생하며, 부실한 건물에는 상당한 피해가 발생한다.",
+  Ⅷ: "일반 건물에 부분적 붕괴 등 상당한 피해가 발생하며, 부실한 건물에는 심각한 피해가 발생한다.",
+  Ⅸ: "잘 설계된 건물에도 상당한 피해가 발생하며, 일반 건축물에는 붕괴 등 큰 피해가 발생한다.",
+  Ⅹ: "대부분의 석조 및 골조 건물이 파괴되고, 기차선로가 휘어진다.",
+  ⅩⅠ: "남아있는 구조물이 거의 없으며, 다리가 무너지고, 기차선로가 심각하게 휘어진다.",
+  ⅩⅡ: "모든 것이 피해를 입고, 지표면이 심각하게 뒤틀리며, 물체가 공중으로 튀어 오른다.",
+};
+
 function App() {
   const [appLoading, setAppLoading] = useState(true);
-  const [percentage, setPercentage] = useState(5);
+  const [percentage, setPercentage] = useState(10);
   const [loading, error] = useKakaoLoader({
     appkey: "6072e8a0344039acacc746c3c35906fb",
   });
+
   const [denied, setDenied] = useState(false);
 
   const [current, setCurrent] = useState("지진");
@@ -34,6 +56,8 @@ function App() {
 
   const [open, setOpen] = useState(false);
   const [openLink, setOpenLink] = useState("");
+  const [moreAboutEQ, setMoreAboutEQ] = useState(false);
+  const [eq, setEQ] = useState({});
 
   function openDialog(link) {
     setOpenLink(link);
@@ -45,24 +69,25 @@ function App() {
     setLng(position.coords.longitude);
   }
 
-  useEffect(() => {
-    async function fetchEarthquake() {
-      setPercentage(15);
+  useLayoutEffect(() => {
+    navigator.geolocation.getCurrentPosition(init);
 
-      navigator.geolocation.getCurrentPosition(init);
+    navigator.geolocation.watchPosition(
+      function (position) {
+        if (
+          position.coords.latitude !== lat &&
+          position.coords.longitude !== lng
+        )
+          init(position);
+      },
+      function (error) {
+        if (error.code === error.PERMISSION_DENIED) setDenied(true);
+      }
+    );
 
-      navigator.geolocation.watchPosition(
-        function (position) {
-          console.log("Latitude is :", position.coords.latitude);
-          console.log("Longitude is :", position.coords.longitude);
-        },
-        function (error) {
-          if (error.code === error.PERMISSION_DENIED) setDenied(true);
-        }
-      );
+    setTimeout(() => setPercentage(35), 1500);
 
-      setPercentage(30);
-
+    async function getDisaster() {
       await fetch(
         "https://glowing-empanada-ae3094.netlify.app/.netlify/functions/eq"
       )
@@ -70,7 +95,7 @@ function App() {
         .then((res) => {
           const temp_markers = [];
 
-          setPercentage(40);
+          localStorage.setItem("length", res.length);
 
           for (let i = 0; i < res.length; i++) {
             const {
@@ -82,6 +107,9 @@ function App() {
               location,
               map_pic,
               more_info,
+              max_intensity,
+              image,
+              kmRadius,
             } = res[i];
 
             temp_markers.push({
@@ -93,23 +121,30 @@ function App() {
               more_info: "https://www.weather.go.kr/" + more_info,
               magnitude: magnitude,
               depth: depth,
+              maxIntensity: max_intensity,
+              image: image,
+              kmRadius: kmRadius,
             });
 
-            if (i === res.length - 1) setAppLoading(false);
+            if (i === res.length - 1) setPercentage(80);
           }
 
           setEQMarkers(temp_markers);
-          setPercentage(45);
         });
-    }
 
-    async function fetchFFS() {
-      const temp_markers = [];
-
-      fetch("https://glowing-empanada-ae3094.netlify.app/.netlify/functions/ff")
+      await fetch(
+        "https://glowing-empanada-ae3094.netlify.app/.netlify/functions/ff"
+      )
         .then((res) => res.json())
         .then((res) => {
+          const temp_markers = [];
+
           const data = res.list;
+
+          localStorage.setItem(
+            "length",
+            parseInt(localStorage.getItem("length")) + data.length
+          );
 
           setPercentage(100);
 
@@ -133,22 +168,20 @@ function App() {
                   link: "https://www.weather.go.kr/w/ff/flood.do",
                   more_info: "https://www.weather.go.kr/w/ff/flood.do",
                 });
+
+                if (i === data.length - 1) {
+                  setTimeout(() => setAppLoading(false), 1000);
+                }
               }
             });
           }
-        });
 
-      setFFMarkers(temp_markers);
-      setPercentage(70);
+          setFFMarkers(temp_markers);
+        });
     }
 
-    fetchEarthquake();
-    setPercentage(50);
-    setTimeout(() => {
-      setPercentage(60);
-      fetchFFS();
-    }, 1000);
-  }, []);
+    getDisaster();
+  }, [lat, lng]);
 
   if (appLoading || loading) return <Loading percentage={percentage}></Loading>;
   if (error) return <Error error={error}></Error>;
@@ -163,21 +196,54 @@ function App() {
       />
 
       <SpeedDial
-        ariaLabel="SpeedDial basic example"
+        ariaLabel="Natural Disaster"
         sx={{ position: "absolute", bottom: 16, right: 16 }}
         icon={<SpeedDialIcon />}
       >
         <SpeedDialAction
           icon={<img src="/img/eq-icon.png" width="40" alt="earthquake" />}
           tooltipTitle="지진"
+          tooltipOpen
           onClick={() => setCurrent("지진")}
         />
         <SpeedDialAction
           icon={<img src="/img/ff-icon.png" width="40" alt="forest fire" />}
           tooltipTitle="산불"
+          tooltipOpen
           onClick={() => setCurrent("산불")}
         />
       </SpeedDial>
+
+      <Dialog
+        fullScreen
+        open={moreAboutEQ}
+        onClose={() => setMoreAboutEQ(false)}
+      >
+        <DialogBar setOpen={setMoreAboutEQ} openLink={openLink}></DialogBar>
+
+        <div className="eq-info-wrapper">
+          <img src={eq.link} alt="" className="eq-info-image" />
+
+          <div className="eq-info">
+            <h1>{eq.location}</h1>
+            <h2>{eq.date}</h2>
+            <p>
+              {eq.magnitude} 규모 · 깊이 {eq.depth}
+            </p>
+
+            <Card>
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                  최대 진도 {eq.maxIntensity}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {eqMagnitude[eq.maxIntensity]}
+                </Typography>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Dialog>
 
       <Dialog
         fullScreen
@@ -207,27 +273,57 @@ function App() {
           style={{ width: "100%", height: "100vh" }}
           level={12}
         >
+          <MapTypeControl position={"TOPRIGHT"} />
+          <ZoomControl position={"RIGHT"} />
+
           <MapMarker position={{ lat: lat, lng: lng }}></MapMarker>
 
           <MarkerClusterer averageCenter>
             {current === "지진" &&
               EQmarkers.map((marker, index) => (
-                <MapMarker
-                  position={{ lat: marker.lat, lng: marker.lng }}
-                  key={`${marker.lat}/${marker.lng}/${index}`}
-                  image={{
-                    src: "/img/earthquake.png",
-                    size: { width: 30, height: 35 },
-                  }}
-                >
-                  <EQinfo {...{ marker, openDialog }}></EQinfo>
-                </MapMarker>
-              ))}
+                <div key={`${marker.lat}/${marker.lng}/${index}/eq`}>
+                  <MapMarker
+                    position={{ lat: marker.lat, lng: marker.lng }}
+                    image={{
+                      src: "/img/earthquake.png",
+                      size: { width: 30, height: 35 },
+                    }}
+                    onClick={() => {
+                      setEQ(marker);
+                      setMoreAboutEQ(true);
+                    }}
+                  >
+                    <EQinfo
+                      {...{ marker, openDialog }}
+                      openMore={() => {
+                        setEQ(marker);
+                        setMoreAboutEQ(true);
+                      }}
+                    ></EQinfo>
+                  </MapMarker>
 
+                  {!marker.more_info.includes("undefined") && (
+                    <Circle
+                      center={{
+                        lat: marker.lat,
+                        lng: marker.lng,
+                      }}
+                      radius={parseInt(marker.kmRadius) * 1000}
+                      strokeWeight={20}
+                      strokeColor={"#FFE562"}
+                      strokeOpacity={0.5}
+                      strokeStyle={"solid"}
+                      fillColor={"#FFE562"}
+                      fillOpacity={0.5}
+                    />
+                  )}
+                </div>
+              ))}
+              
             {current === "산불" &&
               FFmarkers.map((marker, index) => (
                 <MapMarker
-                  key={`${marker.lat}/${marker.lng}/${index}`}
+                  key={`${marker.lat}/${marker.lng}/${index}/ff`}
                   position={{ lat: marker.lat, lng: marker.lng }}
                   image={{
                     src: "/img/forestfire.png",

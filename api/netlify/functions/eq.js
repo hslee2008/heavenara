@@ -11,6 +11,8 @@ exports.handler = async (event, context) => {
 
   const $eqList = $(".table_develop > tbody > tr");
 
+  const promiseArray = [];
+
   $eqList.each((index, child) => {
     const date = $(child).find(":nth-child(2)").text();
     const magnitude = $(child).find(":nth-child(3)").text();
@@ -35,18 +37,48 @@ exports.handler = async (event, context) => {
     if (eq_date < today.setDate(today.getDate() - 5)) return;
     if (date === "") return;
 
-    eqs.push({
-      date,
-      magnitude,
-      depth,
-      max_intensity,
-      latitude,
-      longitude,
-      location,
-      map_pic,
-      more_info,
-    });
+    if (more_info) {
+      const link = `https://www.weather.go.kr/${more_info}`;
+
+      const promise = axios.get(link).then((res) => {
+        const $$ = cheerio.load(res.data);
+
+        const image = $$("#img2").attr("src");
+        const description = $$("#eqEpi").text();
+        const regex = /\(([^)]+)\)/;
+        const kmRadius = description.match(regex)[0].split(" ")[1];
+
+        eqs.push({
+          date,
+          magnitude,
+          depth,
+          max_intensity,
+          latitude,
+          longitude,
+          location,
+          map_pic,
+          more_info,
+          kmRadius,
+          image,
+        });
+      });
+
+      promiseArray.push(promise);
+    } else {
+      eqs.push({
+        date,
+        magnitude,
+        depth,
+        max_intensity,
+        latitude,
+        longitude,
+        location,
+        map_pic,
+      });
+    }
   });
+
+  await Promise.all(promiseArray);
 
   const responseHeaders = {
     "Access-Control-Allow-Origin": "*",

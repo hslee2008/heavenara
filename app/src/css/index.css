@@ -61,5 +61,24 @@ button:hover {
 
 .overlay > .more {
   font-size: 13px;
-  color: grey;
+  color: rgb(92, 92, 92);
+}
+
+.eq-info-wrapper {
+  display: flex;
+  top: 10px;
+  margin: 5px;
+  gap: 15px;
+}
+
+@media (max-width: 800px) {
+  .eq-info-image {
+    width: 400px;
+    height: 400px;
+  }
+
+  .eq-info-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
 }
