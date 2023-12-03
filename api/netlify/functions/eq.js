@@ -46,7 +46,11 @@ exports.handler = async (event, context) => {
         const image = $$("#img2").attr("src");
         const description = $$("#eqEpi").text();
         const regex = /\(([^)]+)\)/;
-        const kmRadius = description.match(regex)[0].split(" ")[1];
+        let kmRadius = 0;
+
+        try {
+          kmRadius = description.match(regex)[0].split(" ")[1];
+        } catch (e) {}
 
         eqs.push({
           date,
