@@ -20,7 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import { DialogBar, EQinfo, FFinfo, Loading, Error } from "./components";
+import { DialogBar, EQinfo, FFinfo } from "./components";
 
 const eqMagnitude = {
   Ⅰ: "대부분 사람들은 느낄 수 없으나, 지진계에는 기록된다.",
@@ -38,9 +38,7 @@ const eqMagnitude = {
 };
 
 function App() {
-  const [appLoading, setAppLoading] = useState(true);
-  const [percentage, setPercentage] = useState(10);
-  const [loading, error] = useKakaoLoader({
+  useKakaoLoader({
     appkey: "6072e8a0344039acacc746c3c35906fb",
   });
 
@@ -85,8 +83,6 @@ function App() {
       }
     );
 
-    setTimeout(() => setPercentage(35), 1500);
-
     async function getDisaster() {
       await fetch(
         "https://glowing-empanada-ae3094.netlify.app/.netlify/functions/eq"
@@ -125,8 +121,6 @@ function App() {
               image: image,
               kmRadius: kmRadius,
             });
-
-            if (i === res.length - 1) setPercentage(80);
           }
 
           setEQMarkers(temp_markers);
@@ -145,8 +139,6 @@ function App() {
             "length",
             parseInt(localStorage.getItem("length")) + data.length
           );
-
-          setPercentage(100);
 
           for (let i = 0; i < data.length; i++) {
             const { tpStatus, loc, mapTime } = data[i];
@@ -168,10 +160,6 @@ function App() {
                   link: "https://www.weather.go.kr/w/ff/flood.do",
                   more_info: "https://www.weather.go.kr/w/ff/flood.do",
                 });
-
-                if (i === data.length - 1) {
-                  setTimeout(() => setAppLoading(false), 1000);
-                }
               }
             });
           }
@@ -182,9 +170,6 @@ function App() {
 
     getDisaster();
   }, [lat, lng]);
-
-  if (appLoading || loading) return <Loading percentage={percentage}></Loading>;
-  if (error) return <Error error={error}></Error>;
 
   return (
     <>
@@ -222,7 +207,11 @@ function App() {
         <DialogBar setOpen={setMoreAboutEQ} openLink={openLink}></DialogBar>
 
         <div className="eq-info-wrapper">
-          <img src={eq.link} alt="" className="eq-info-image" />
+          <img
+            src={eq.link}
+            alt="earth quake information"
+            className="eq-info-image"
+          />
 
           <div className="eq-info">
             <h1>{eq.location}</h1>
@@ -319,7 +308,7 @@ function App() {
                   )}
                 </div>
               ))}
-              
+
             {current === "산불" &&
               FFmarkers.map((marker, index) => (
                 <MapMarker

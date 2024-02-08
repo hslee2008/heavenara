@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
     const eq_date = new Date(date.split(" ")[0].replace(/\//g, "-"));
     const today = new Date();
 
-    if (eq_date < today.setDate(today.getDate() - 5)) return;
+    if (eq_date < today.setDate(today.getDate() - 2)) return;
     if (date === "") return;
 
     if (more_info) {
