@@ -13,7 +13,7 @@
 /* 5.5 <= x <= 6.0 (damage to structure) */
 .eq-3 {
   opacity: 0.9;
-  border: #FFBF00 solid 3px;
+  border: #ffbf00 solid 3px;
   border-radius: 10px;
 }
 
@@ -27,7 +27,7 @@
 /* 7.0 <= x <= 7.9 (serious damage) */
 .eq-5 {
   opacity: 1;
-  border: #FF4D00 solid 5px;
+  border: #ff4d00 solid 5px;
   border-radius: 10px;
 }
 
@@ -36,4 +36,49 @@
   opacity: 1;
   border: red solid 5px;
   border-radius: 10px;
+}
+
+/* Code */
+.eq-center {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.eq-info-wrapper {
+  margin-top: 20px;
+  margin-bttom: 50px;
+}
+
+.eq-info > h1 {
+  text-align: center;
+  margin-bottom: 0px !important;
+}
+
+.eq-info > h2 {
+  color: darkgrey;
+  text-align: center;
+  margin-top: 0px !important;
+}
+
+.eq-info > h3 {
+  text-align: center;
+  margin-top: 0px !important;
+}
+
+.eq-info-image {
+  border-radius: 15px;
+  margin: auto;
+}
+
+@media (max-width: 800px) {
+  .eq-info-image {
+    width: 400px;
+    height: 400px;
+  }
+
+  .eq-info-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
 }

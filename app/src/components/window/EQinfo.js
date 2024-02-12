@@ -24,9 +24,6 @@ function EQinfo({ marker, openDialog, openMore }) {
         <p className="more">
           {toDateDifference(marker.date)}일 전 · {marker.magnitude} 규모
         </p>
-        <p className="more">
-          최대 진도 {marker.maxIntensity} · 깊이 {marker.depth}
-        </p>
       </div>
 
       {marker.magnitude >= 2 && (

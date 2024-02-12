@@ -126,7 +126,7 @@ function App() {
           setEQMarkers(temp_markers);
         });
 
-      await fetch(
+      /*await fetch(
         "https://glowing-empanada-ae3094.netlify.app/.netlify/functions/ff"
       )
         .then((res) => res.json())
@@ -165,7 +165,7 @@ function App() {
           }
 
           setFFMarkers(temp_markers);
-        });
+        });*/
     }
 
     getDisaster();
@@ -206,30 +206,39 @@ function App() {
       >
         <DialogBar setOpen={setMoreAboutEQ} openLink={openLink}></DialogBar>
 
-        <div className="eq-info-wrapper">
-          <img
-            src={eq.link}
-            alt="earth quake information"
-            className="eq-info-image"
-          />
+        <div className="eq-center">
+          <div className="eq-info-wrapper">
+            <img
+              src={eq.link}
+              alt="earth quake information"
+              className="eq-info-image"
+            />
 
-          <div className="eq-info">
-            <h1>{eq.location}</h1>
-            <h2>{eq.date}</h2>
-            <p>
-              {eq.magnitude} 규모 · 깊이 {eq.depth}
-            </p>
+            <div className="eq-info">
+              <h1>{eq.location}</h1>
+              <h2>{eq.date}</h2>
+              <h3>
+                규모 {eq.magnitude} · 깊이 {eq.depth}km (
+                {eq.depth < 70 ? "천발" : eq.depth < 300 ? "중발" : "심발"}지진)
+              </h3>
 
-            <Card>
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
+              <br />
+              <br />
+
+              <div>
+                <Typography variant="h5">
                   최대 진도 {eq.maxIntensity}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   {eqMagnitude[eq.maxIntensity]}
                 </Typography>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            <br />
+            <br />
+            <br />
+            <br />
           </div>
         </div>
       </Dialog>

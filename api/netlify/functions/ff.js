@@ -1,5 +1,5 @@
 const express = require("express");
-const fetch = require("node-fetch");
+const axios = require("axios");
 const bodyParser = require("body-parser");
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,16 +25,14 @@ exports.handler = async (req, res) => {
 
   const call_url = `/idsiDIJ/dij/getCommonInfoAjax.do?system=SFK&sqlType=list&metaYn=Y&dataYn=Y&tranSeq=1&pageSize=10&pageNum=1&infoId=FOA_FOREST_MAP&qArea1=&qArea2=&startDate=${startDateString}&currentDate=${endDateString}&st_cd=`;
 
-  const response = await fetch(
-    "https://www.safekorea.go.kr/idsiSFK/sfk/cs/csc/sfkApi.do",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `call_url=${encodeURIComponent(call_url)}`,
-    }
-  );
+  const response = await axios({
+    url: "https://www.safekorea.go.kr/idsiSFK/sfk/cs/csc/sfkApi.do",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `call_url=${encodeURIComponent(call_url)}`,
+  });
 
   if (!response.ok) {
     return res
