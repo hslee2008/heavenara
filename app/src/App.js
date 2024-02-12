@@ -15,8 +15,6 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
   Snackbar,
-  Card,
-  CardContent,
   Typography,
 } from "@mui/material";
 
@@ -50,7 +48,7 @@ function App() {
   const [lng, setLng] = useState(0);
 
   const [EQmarkers, setEQMarkers] = useState([]);
-  const [FFmarkers, setFFMarkers] = useState([]);
+  //const [FFmarkers, setFFMarkers] = useState([]);
 
   const [open, setOpen] = useState(false);
   const [openLink, setOpenLink] = useState("");
@@ -318,7 +316,7 @@ function App() {
                 </div>
               ))}
 
-            {current === "산불" &&
+            {/*current === "산불" &&
               FFmarkers.map((marker, index) => (
                 <MapMarker
                   key={`${marker.lat}/${marker.lng}/${index}/ff`}
@@ -330,7 +328,7 @@ function App() {
                 >
                   <FFinfo {...{ marker, openDialog }}></FFinfo>
                 </MapMarker>
-              ))}
+                ))*/}
           </MarkerClusterer>
         </Map>
       </div>
